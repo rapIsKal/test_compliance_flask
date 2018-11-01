@@ -203,7 +203,7 @@ def index():
 def kakla_poll():
     print("*********************")
     print("aloha")
-    print(json.loads(request.data))
+    receive_from_bot(json.loads(request.data))
     return "OK"
 
 
