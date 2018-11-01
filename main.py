@@ -196,8 +196,8 @@ poll_tr.start()
 
 @app.route('/')
 def index():
-    return " Hello world"
-    #return render_template('index.html', async_mode=socketio.async_mode)
+    #return " Hello world"
+    return render_template('index.html', async_mode=socketio.async_mode)
 
 
 @app.route('/admin')
