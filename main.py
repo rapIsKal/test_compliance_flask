@@ -34,6 +34,13 @@ TOKEN = '628583227:AAG4wXkmXI_nGl2x0MOjBKLJDA229FULcQU'
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                      level=logging.INFO)
 
+logger = logging.getLogger("logger")
+handlerFile = logging.FileHandler("compliance.log")
+handlerConsole = logging.StreamHandler()
+logger.setLevel(logging.DEBUG)
+logger.addHandler(handlerFile)
+logger.addHandler(handlerConsole)
+
 rm = ResponseModel()
 bot = Bot(TOKEN)
 update_queue = Queue()
@@ -80,7 +87,7 @@ def process_text(chat_id, text, bot):
     if manager.is_bot_session(chat_id):
         manager.store_message_to_bot(text, chat_id)
         message_to_bot_str = json.dumps(make_to_message(text, chat_id))
-        logger.info("Try to send to AI: {}.".format(message_to_bot_str))
+        logger.info("Try to send to publisher queue: {}.".format(message_to_bot_str))
         q_to.put((chat_id, text))
         bot.send_message(chat_id=chat_id, text='записали в кафку')
 
@@ -141,7 +148,7 @@ def poll(q):
         if msg:
             value = msg.value()
             if value:
-                logger.debug("Received from AI put to queue: {}.".format(value))
+                logger.info("Received from AI put to queue: {}.".format(value))
                 q.put(value)
 
 
@@ -150,6 +157,7 @@ def push(q):
         try:
             msg, chat_id = q.get(block=False)
             if msg:
+                logger.info("Received push queue. sending to AI: {}.".format(msg))
                 publisher.send(msg, chat_id, "compliance")
         except:
             pass
