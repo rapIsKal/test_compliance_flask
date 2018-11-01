@@ -202,7 +202,7 @@ def index():
 
 @app.route('/admin')
 def webhook():
-    bot.set_webhook("https://fathomless-ocean-77855.herokuapp.com/" + TOKEN)
+    bot.set_webhook("https://obscure-dawn-33815.herokuapp.com/" + TOKEN)
     return "WebHOOK connected"
 
 
