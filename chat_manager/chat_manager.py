@@ -14,6 +14,12 @@ class ChatManager:
     def is_operator_listening(self, chat_id):
         return self.user_chats[chat_id]["operators"]
 
+    def store_message_from_bot(self, msg, chat_id):
+        return self.store_message(msg, chat_id, True)
+
+    def store_message_to_bot(self, msg, chat_id):
+        return self.store_message(msg, chat_id, False)
+
     def store_message(self, msg, chat_id, bot= False):
         if self.user_chats[chat_id]["store_history"]:
             if bot:
