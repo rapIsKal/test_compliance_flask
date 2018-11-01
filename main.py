@@ -1,3 +1,6 @@
+import multiprocessing
+from multiprocessing import Process
+
 import gevent
 import json
 import logging
@@ -128,7 +131,7 @@ consumer = KafkaConsumer(kafka_config.kafkaConfig, logger)
 #     #    manager.close_bot_session(chatid)
 
 
-def poll():
+def poll(q):
     while 1:
         msg = consumer.poll()
         if msg:
@@ -137,11 +140,21 @@ def poll():
                 # sys.stderr.write("Received from AI: {}.".format(value))
                 # from_bot_message = from_ai_message(value)
                 # receive_from_bot(from_bot_message)
-                pass
+                q.put(value)
+
+q = multiprocessing.Queue()
+poll_pr_kafka = Process(target=poll, args=(q,), name='poliing')
+poll_pr_kafka.start()
+
+
+def polling_main_tr():
+    while True:
+        q.get(block=False)
         gevent.sleep(0)
 
-thread_kafka = Thread(target=poll, name='dispatcher222')
-thread_kafka.start()
+receiver_tr = Thread(target=polling_main_tr, name="polling_main_thread")
+receiver_tr.start()
+
 
 
 @app.route('/')
