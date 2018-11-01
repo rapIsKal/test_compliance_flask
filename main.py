@@ -1,6 +1,10 @@
+import time
+
 import multiprocessing
 import uuid
 from multiprocessing import Process
+from kafka import KafkaConsumer
+from kafka import KafkaProducer
 
 import gevent
 import json
@@ -19,8 +23,8 @@ from telegram.ext import CommandHandler
 import kafka_config
 from chat_manager.chat_manager import ChatManager
 from mq.from_ai_message import from_ai_message
-from mq.kafka.kafka_consumer import KafkaConsumer
-from mq.kafka.kafka_publisher import KafkaPublisher
+# from mq.kafka.kafka_consumer import KafkaConsumer
+# from mq.kafka.kafka_publisher import KafkaPublisher
 from mq.to_ai_message import to_ai_message
 from response_model.response_model import ResponseModel, FINAL_ANSWER
 
@@ -111,8 +115,8 @@ thread_bot.start()
 manager = ChatManager()
 
 logger = logging.getLogger()
-consumer = KafkaConsumer(kafka_config.kafkaConfig, logger)
-publisher = KafkaPublisher(kafka_config.kafkaConfig, logger)
+consumer = KafkaConsumer(kafka_config.FROM_AI_TOPIC, bootstrap_servers=kafka_config.KAFKA_SOCKET)
+publisher = KafkaProducer(bootstrap_servers=kafka_config.KAFKA_SOCKET)
 
 
 def _filter_user_messages(messages):
@@ -143,7 +147,7 @@ def receive_from_bot(from_bot_message):
     #if ans == FINAL_ANSWER:
     #    manager.close_bot_session(chatid)
 
-
+"""
 def poll(q):
     while 1:
         msg = consumer.poll()
@@ -152,37 +156,38 @@ def poll(q):
             if value:
                 logger.info("Received from AI put to queue: {}.".format(value))
                 q.put(value)
+"""
 
-
-def push(q):
+def push():
     while 1:
-        if not q.empty():
-            msg, chat_id = q.get(block=False)
-            if msg:
-                logger.info("Received push queue. sending to AI: {}.".format(msg))
-                publisher.send(msg, chat_id, "compliance")
+        logger.info("Received push queue. sending to AI:")
+        print("test sending")
+        publisher.send("toAI", b"testsend")
+        gevent.sleep(4)
 
+push_tr = Thread(target=push, name="push_k")
+push_tr.start()
 
 
 q_from = multiprocessing.Queue()
-poll_pr_kafka = Process(target=poll, args=(q_from,), name='poliing kafka')
-poll_pr_kafka.start()
-
+# poll_pr_kafka = Process(target=poll, args=(q_from,), name='poliing kafka')
+# poll_pr_kafka.start()
+#
 q_to = multiprocessing.Queue()
-push_pr_kafka = Process(target=push, args=(q_to,), name='pushning kafka')
-push_pr_kafka.start()
+# push_pr_kafka = Process(target=push, args=(q_to,), name='pushning kafka')
+# push_pr_kafka.start()
 
-def polling_main_tr():
-    while True:
-        if not q_from.empty():
-            value = q_from.get(block=False)
-            if value:
-                logger.debug("Received from queue: {}.".format(value))
-                from_bot_message = from_ai_message(value)
-                receive_from_bot(from_bot_message)
-
-receiver_tr = Thread(target=polling_main_tr, name="polling_main_thread")
-receiver_tr.start()
+# def polling_main_tr():
+#     while True:
+#         if not q_from.empty():
+#             value = q_from.get(block=False)
+#             if value:
+#                 logger.debug("Received from queue: {}.".format(value))
+#                 from_bot_message = from_ai_message(value)
+#                 receive_from_bot(from_bot_message)
+#
+# receiver_tr = Thread(target=polling_main_tr, name="polling_main_thread")
+# receiver_tr.start()
 
 
 
