@@ -90,11 +90,11 @@ thread_bot.start()
 
 
 manager = ChatManager()
-
+"""
 def loop():
     while True:
         pass
-
+"""
 thread_fake = Thread(target=loop, name='dispatcher222')
 thread.fake.start()
 
