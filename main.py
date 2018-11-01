@@ -158,7 +158,7 @@ def poll():
                 #msg_text = msg.decode()
                 print("1111")
                 #print(msg_text)
-        gevent.sleep(0.05)
+        gevent.sleep(0)
 
 
 def push(msg):
@@ -197,9 +197,10 @@ poll_tr.start()
 
 @app.route('/')
 def index():
-    return render_template('index.html', async_mode=socketio.async_mode)
+    return " Hello world"
+    #return render_template('index.html', async_mode=socketio.async_mode)
 
-
+"""
 @app.route('/admin')
 def webhook():
     bot.set_webhook("https://fathomless-ocean-77855.herokuapp.com/" + TOKEN)
@@ -288,6 +289,4 @@ def test_disconnect():
     print('Client disconnected', request.sid)
 
 
-if __name__ == '__main__':
-    socketio.run(app, host='0.0.0.0', port=8443, debug=True)
-
+"""
