@@ -41,7 +41,7 @@ logger.setLevel(logging.DEBUG)
 logger.addHandler(handlerFile)
 logger.addHandler(handlerConsole)
 
-logger.exception("!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 
 rm = ResponseModel()
 bot = Bot(TOKEN)
@@ -70,7 +70,7 @@ def button(bot, update):
     query = update.callback_query
     bot.send_message(chat_id=query.message.chat_id, text=query.data)
     process_text(query.message.chat_id, query.data, bot)
-    bot.send_message(chat_id=query.mesage.chat_id, text=query.data)
+    bot.send_message(chat_id=query.message.chat_id, text=query.data)
 
 
 
@@ -92,6 +92,7 @@ def process_text(chat_id, text, bot):
         logger.info("Try to send to publisher queue: {}.".format(message_to_bot_str))
         q_to.put((chat_id, text))
         bot.send_message(chat_id=chat_id, text='записали в кафку')
+
 
 
 def userinput(bot, update):
@@ -158,6 +159,8 @@ def push(q):
     while 1:
         try:
             msg, chat_id = q.get(block=False)
+            print("*"*80)
+            print(f"{msg}")
             if msg:
                 logger.info("Received push queue. sending to AI: {}.".format(msg))
                 publisher.send(msg, chat_id, "compliance")
