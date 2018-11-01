@@ -180,14 +180,14 @@ def polling_main_tr():
     while True:
         try:
             value = q_from.get(block=False)
-            print("*" * 80)
+            print("" * 80)
             print(value)
             if value:
                 logger.debug("Received from queue: {}.".format(value))
                 from_bot_message = from_ai_message(value)
                 receive_from_bot(from_bot_message)
         except:
-            pass
+
         gevent.sleep(0)
 
 receiver_tr = Thread(target=polling_main_tr, name="polling_main_thread")
