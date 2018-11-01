@@ -172,8 +172,8 @@ def push(msg):
 
 
 
-poll_tr = Thread(target=poll, name="poll_k")
-poll_tr.start()
+#poll_tr = Thread(target=poll, name="poll_k")
+#poll_tr.start()
 
 
 # push_pr_kafka = Process(target=push, args=(q_to,), name='pushning kafka')
@@ -198,6 +198,12 @@ poll_tr.start()
 def index():
     #return " Hello world"
     return render_template('index.html', async_mode=socketio.async_mode)
+
+@app.route("/kafka", methods=['POST'])
+def kakla_poll():
+    print("*********************")
+    print("aloha")
+
 
 
 @app.route('/admin')
