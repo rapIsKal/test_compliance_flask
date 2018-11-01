@@ -156,8 +156,8 @@ def poll():
             print("*"*40)
             if msg:
                 #msg_text = msg.decode()
-                print("!!!!!")
-                print(msg_text)
+                print("1111")
+                #print(msg_text)
         gevent.sleep(0.05)
 
 
