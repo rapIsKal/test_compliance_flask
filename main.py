@@ -94,7 +94,7 @@ def process_text(chat_id, text, bot):
         manager.store_message_to_bot(text, chat_id)
         message_to_bot_str = json.dumps(make_to_message(text, chat_id))
         logger.info("Try to send to publisher queue: {}.".format(message_to_bot_str))
-
+        push(message_to_bot_str)
         bot.send_message(chat_id=chat_id, text='записали в кафку')
 
 
@@ -148,26 +148,30 @@ def receive_from_bot(from_bot_message):
     #if ans == FINAL_ANSWER:
     #    manager.close_bot_session(chatid)
 
-"""
-def poll(q):
-    while 1:
-        msg = consumer.poll()
-        if msg:
-            value = msg.value()
-            if value:
-                logger.info("Received from AI put to queue: {}.".format(value))
-                q.put(value)
-"""
 
-def push():
+def poll():
     while 1:
-        logger.info("Received push queue. sending to AI:")
-        print("test sending")
-        publisher.send("toAI", b"testsend")
-        gevent.sleep(0)
+        for msg in consumer:
+            if msg:
+                msg_text = msg.decode()
+                print("!!!!!")
+                print(msg_text)
+        gevent.sleep(0.05)
 
-push_tr = Thread(target=push, name="push_k")
-push_tr.start()
+
+def push(msg):
+    logger.info("Received push queue. sending to AI:")
+    print("test sending")
+    bmsg = msg.encode()
+    publisher.send("toAI", bmsg)
+    #gevent.sleep(0)
+
+# push_tr = Thread(target=push, name="push_k")
+# push_tr.start()
+
+
+poll_tr = Thread(target=poll, name="poll_k")
+poll_tr.start()
 
 
 # push_pr_kafka = Process(target=push, args=(q_to,), name='pushning kafka')
