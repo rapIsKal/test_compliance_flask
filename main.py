@@ -155,7 +155,7 @@ def poll():
         for msg in consumer:
             print("*"*40)
             if msg:
-                msg_text = msg.decode()
+                #msg_text = msg.decode()
                 print("!!!!!")
                 print(msg_text)
         gevent.sleep(0.05)
