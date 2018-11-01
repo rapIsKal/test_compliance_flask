@@ -151,6 +151,7 @@ def receive_from_bot(from_bot_message):
 
 def poll():
     while 1:
+        print("!!!!!!")
         for msg in consumer:
             if msg:
                 msg_text = msg.decode()
@@ -168,6 +169,7 @@ def push(msg):
 
 # push_tr = Thread(target=push, name="push_k")
 # push_tr.start()
+
 
 
 poll_tr = Thread(target=poll, name="poll_k")
