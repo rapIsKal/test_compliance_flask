@@ -130,8 +130,7 @@ consumer = KafkaConsumer(kafka_config.kafkaConfig, logger)
 
 def poll():
     while 1:
-        #msg = consumer.poll()
-        """
+        msg = consumer.poll()
         if msg:
             value = msg.value()
             if value:
@@ -139,7 +138,6 @@ def poll():
                 # from_bot_message = from_ai_message(value)
                 # receive_from_bot(from_bot_message)
                 pass
-        """
         gevent.sleep(0)
 
 thread_kafka = Thread(target=poll, name='dispatcher222')
