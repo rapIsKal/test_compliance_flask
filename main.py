@@ -94,7 +94,7 @@ def process_text(chat_id, text, bot):
         manager.store_message_to_bot(text, chat_id)
         message_to_bot_str = json.dumps(make_to_message(text, chat_id))
         logger.info("Try to send to publisher queue: {}.".format(message_to_bot_str))
-        q_to.put((chat_id, text))
+
         bot.send_message(chat_id=chat_id, text='записали в кафку')
 
 
