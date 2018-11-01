@@ -1,3 +1,4 @@
+import gevent
 import json
 import logging
 from queue import Queue
@@ -90,14 +91,14 @@ thread_bot.start()
 
 
 manager = ChatManager()
-"""
+
 def loop():
     while True:
-        pass
+        gevent.sleep(0)
 
 thread_fake = Thread(target=loop, name='dispatcher222')
 thread.fake.start()
-"""
+
 
 @app.route('/')
 def index():
