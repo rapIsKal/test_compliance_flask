@@ -150,12 +150,15 @@ def receive_from_bot(from_bot_message):
 
 
 def poll():
-    for msg in consumer:
-        print("*"*40)
-        if msg:
-            #msg_text = msg.decode()
-            print("1111")
-            #print(msg_text)
+    while 1:
+        for msg in consumer:
+            print("*"*40)
+            if msg:
+                #msg_text = msg.decode()
+                print("1111")
+                print(msg.value)
+        gevent.sleep(0)
+
 
 def push(msg):
     logger.info("Received push queue. sending to AI:")
