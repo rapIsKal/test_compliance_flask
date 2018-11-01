@@ -131,7 +131,7 @@ consumer = KafkaConsumer(kafka_config.kafkaConfig, logger)
 #     #    manager.close_bot_session(chatid)
 
 
-def poll():
+def poll(q):
     while 1:
         msg = consumer.poll()
         if msg:
@@ -140,8 +140,7 @@ def poll():
                 # sys.stderr.write("Received from AI: {}.".format(value))
                 # from_bot_message = from_ai_message(value)
                 # receive_from_bot(from_bot_message)
-                pass
-        gevent.sleep(0)
+                q.put(value)
 
 q = multiprocessing.Queue()
 poll_pr_kafka = Process(target=poll, args=(q,), name='poliing')
