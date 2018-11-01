@@ -121,12 +121,12 @@ publisher = KafkaProducer(bootstrap_servers=kafka_config.KAFKA_SOCKET)
 
 
 def _filter_user_messages(messages):
-    user_messages = []
+    user_message_string = ""
 
     for message in messages:
         if message["message_name"] == "ANSWER_TO_USER":
-            user_messages.append(message)
-    return user_messages
+            user_message_string += message["payload"]["answer"]
+    return user_message_string
 
 
 def receive_from_bot(from_bot_message):
@@ -136,14 +136,12 @@ def receive_from_bot(from_bot_message):
     room = manager.chat_room(chatid)
 
     messages = from_bot_message["messages"]
-    user_messages = _filter_user_messages(messages)
-
-    user_messages_str = json.dumps(user_messages)
+    user_message_string = _filter_user_messages(messages)
     all_messages_str = json.dumps(from_bot_message)
 
-    manager.store_message_from_bot(all_messages_str, chatid)
-    bot.send_message(chat_id=chatid, text=user_messages_str)
-    socketio.emit('my_response', {'data': f'{from_bot_message}', 'count': 0},
+    manager.store_message_from_bot(user_message_string, chatid)
+    bot.send_message(chat_id=chatid, text=user_message_string)
+    socketio.emit('my_response', {'data': f'{user_message_string}', 'count': 0},
                   namespace="/test",
                   room=str(room))
 
