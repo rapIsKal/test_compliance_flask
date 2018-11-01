@@ -150,7 +150,6 @@ def receive_from_bot(from_bot_message):
 
 
 def poll():
-    print("!!!!")
     for msg in consumer:
         print("*"*40)
         if msg:
