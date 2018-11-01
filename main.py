@@ -179,7 +179,6 @@ push_pr_kafka.start()
 def polling_main_tr():
     while True:
         try:
-            print("*" * 80)
             value = q_from.get(block=False)
             print("*" * 80)
             print(value)
