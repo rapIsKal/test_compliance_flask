@@ -17,7 +17,9 @@ from telegram.ext import CommandHandler
 
 import kafka_config
 from chat_manager.chat_manager import ChatManager
+from mq.from_ai_message import from_ai_message
 from mq.kafka.kafka_consumer import KafkaConsumer
+from mq.kafka.kafka_publisher import KafkaPublisher
 from response_model.response_model import ResponseModel, FINAL_ANSWER
 
 async_mode = "gevent"
@@ -70,15 +72,11 @@ def process_text(chat_id, text, bot):
                   namespace="/test",
                   room=str(room))
     if manager.is_bot_session(chat_id):
-        ans = rm.answer(text, chat_id)
-        manager.store_message(text, chat_id)
-        manager.store_message(ans, chat_id, True)
-        bot.send_message(chat_id=chat_id, text=ans)
-        socketio.emit('my_response', {'data': f'{ans}', 'count': 0},
-                      namespace="/test",
-                      room=str(room))
-        if ans == FINAL_ANSWER:
-            manager.close_bot_session(chat_id)
+        manager.store_message_to_bot(text, chat_id)
+        message_to_bot_str = json.dumps(make_to_message(text, chat_id))
+        logger.info("Try to send to AI: {}.".format(message_to_bot_str))
+        q_to.put((chat_id, text))
+        bot.send_message(chat_id=chat_id, text='записали в кафку')
 
 
 def userinput(bot, update):
@@ -99,36 +97,36 @@ manager = ChatManager()
 
 logger = logging.getLogger()
 consumer = KafkaConsumer(kafka_config.kafkaConfig, logger)
-# publisher = KafkaPublisher(kafka_config, logger)
-#
-#
-# def _filter_user_messages(messages):
-#     user_messages = []
-#
-#     for message in messages:
-#         if message["message_name"] == "ANSWER_TO_USER":
-#             user_messages.append(message)
-#     return user_messages
-#
-#
-# def receive_from_bot(from_bot_message):
-#     chatid = from_bot_message["uuid"]["chatId"]
-#     room = manager.chat_room(chatid)
-#
-#     messages = from_bot_message["messages"]
-#     user_messages = _filter_user_messages(messages)
-#
-#     user_messages_str = json.dumps(user_messages)
-#     all_messages_str = json.dumps(from_bot_message)
-#
-#     manager.store_message_from_bot(all_messages_str, chatid)
-#     bot.send_message(chat_id=chatid, text=user_messages_str)
-#     socketio.emit('my_response', {'data': f'{from_bot_message}', 'count': 0},
-#                   namespace="/test",
-#                   room=str(room))
-#
-#     #if ans == FINAL_ANSWER:
-#     #    manager.close_bot_session(chatid)
+publisher = KafkaPublisher(kafka_config.kafkaConfig, logger)
+
+
+def _filter_user_messages(messages):
+    user_messages = []
+
+    for message in messages:
+        if message["message_name"] == "ANSWER_TO_USER":
+            user_messages.append(message)
+    return user_messages
+
+
+def receive_from_bot(from_bot_message):
+    chatid = from_bot_message["uuid"]["chatId"]
+    room = manager.chat_room(chatid)
+
+    messages = from_bot_message["messages"]
+    user_messages = _filter_user_messages(messages)
+
+    user_messages_str = json.dumps(user_messages)
+    all_messages_str = json.dumps(from_bot_message)
+
+    manager.store_message_from_bot(all_messages_str, chatid)
+    bot.send_message(chat_id=chatid, text=user_messages_str)
+    socketio.emit('my_response', {'data': f'{from_bot_message}', 'count': 0},
+                  namespace="/test",
+                  room=str(room))
+
+    #if ans == FINAL_ANSWER:
+    #    manager.close_bot_session(chatid)
 
 
 def poll(q):
@@ -137,19 +135,38 @@ def poll(q):
         if msg:
             value = msg.value()
             if value:
-                # sys.stderr.write("Received from AI: {}.".format(value))
-                # from_bot_message = from_ai_message(value)
-                # receive_from_bot(from_bot_message)
+                logger.debug("Received from AI put to queue: {}.".format(value))
                 q.put(value)
 
-q = multiprocessing.Queue()
-poll_pr_kafka = Process(target=poll, args=(q,), name='poliing')
+
+def push(q):
+    while 1:
+        try:
+            msg, chat_id = q.get(block=False)
+            if msg:
+                publisher.send(msg, chat_id, "compliance")
+        except:
+            pass
+
+
+q_from = multiprocessing.Queue()
+poll_pr_kafka = Process(target=poll, args=(q_from,), name='poliing kafka')
 poll_pr_kafka.start()
 
+q_to = multiprocessing.Queue()
+push_pr_kafka = Process(target=push, args=(q_to,), name='pushning kafka')
+push_pr_kafka.start()
 
 def polling_main_tr():
     while True:
-        q.get(block=False)
+        try:
+            value = q_from.get(block=False)
+            if value:
+                logger.debug("Received from queue: {}.".format(value))
+                from_bot_message = from_ai_message(value)
+                receive_from_bot(from_bot_message)
+        except:
+            pass
         gevent.sleep(0)
 
 receiver_tr = Thread(target=polling_main_tr, name="polling_main_thread")
