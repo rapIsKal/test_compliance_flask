@@ -45,7 +45,7 @@ logger.setLevel(logging.DEBUG)
 logger.addHandler(handlerFile)
 logger.addHandler(handlerConsole)
 
-logger.exception("!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 
 rm = ResponseModel()
 bot = Bot(TOKEN)
@@ -74,7 +74,7 @@ def button(bot, update):
     query = update.callback_query
     bot.send_message(chat_id=query.message.chat_id, text=query.data)
     process_text(query.message.chat_id, query.data, bot)
-    bot.send_message(chat_id=query.mesage.chat_id, text=query.data)
+    bot.send_message(chat_id=query.message.chat_id, text=query.data)
 
 
 
@@ -96,6 +96,7 @@ def process_text(chat_id, text, bot):
         logger.info("Try to send to publisher queue: {}.".format(message_to_bot_str))
         q_to.put((chat_id, text))
         bot.send_message(chat_id=chat_id, text='записали в кафку')
+
 
 
 def userinput(bot, update):
@@ -169,11 +170,6 @@ push_tr = Thread(target=push, name="push_k")
 push_tr.start()
 
 
-q_from = multiprocessing.Queue()
-# poll_pr_kafka = Process(target=poll, args=(q_from,), name='poliing kafka')
-# poll_pr_kafka.start()
-#
-q_to = multiprocessing.Queue()
 # push_pr_kafka = Process(target=push, args=(q_to,), name='pushning kafka')
 # push_pr_kafka.start()
 
@@ -188,6 +184,7 @@ q_to = multiprocessing.Queue()
 #
 # receiver_tr = Thread(target=polling_main_tr, name="polling_main_thread")
 # receiver_tr.start()
+
 
 
 
