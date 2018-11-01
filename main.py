@@ -97,7 +97,7 @@ def loop():
         gevent.sleep(0)
 
 thread_fake = Thread(target=loop, name='dispatcher222')
-thread.fake.start()
+thread_fake.start()
 
 
 @app.route('/')
