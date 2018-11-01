@@ -178,6 +178,7 @@ push_pr_kafka.start()
 def polling_main_tr():
     while True:
         if not q_from.empty():
+            print("value?" * 10)
             value = q_from.get(block=False)
             print("value?" * 10)
             print(value)
