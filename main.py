@@ -146,6 +146,7 @@ q = multiprocessing.Queue()
 poll_pr_kafka = Process(target=poll, args=(q,), name='poliing')
 poll_pr_kafka.start()
 
+"""
 def polling_main_tr():
     while True:
         q.get()
@@ -153,6 +154,7 @@ def polling_main_tr():
 
 receiver_tr = Thread(target=polling_main_tr, name="polling_main_thread")
 receiver_tr.start()
+"""
 
 
 @app.route('/')
