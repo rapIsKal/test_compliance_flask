@@ -152,12 +152,14 @@ def receive_from_bot(from_bot_message):
 def poll():
     while 1:
         print("!!!!!!")
+        """
         for msg in consumer:
             print("*"*40)
             if msg:
                 #msg_text = msg.decode()
                 print("1111")
                 #print(msg_text)
+        """
         gevent.sleep(0)
 
 
