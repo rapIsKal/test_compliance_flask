@@ -125,7 +125,7 @@ def _filter_user_messages(messages):
 
     for message in messages:
         if message["message_name"] == "ANSWER_TO_USER":
-            user_message_string += message["payload"]["answer"]
+            user_message_string += json.loads(message["payload"]["answer"])
     return user_message_string
 
 
