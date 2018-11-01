@@ -157,15 +157,14 @@ def poll(q):
 
 def push(q):
     while 1:
-        try:
+        if not q.empty():
             msg, chat_id = q.get(block=False)
             print("*"*80)
             print(f"{msg}")
             if msg:
                 logger.info("Received push queue. sending to AI: {}.".format(msg))
                 publisher.send(msg, chat_id, "compliance")
-        except:
-            pass
+
 
 
 q_from = multiprocessing.Queue()
@@ -178,16 +177,14 @@ push_pr_kafka.start()
 
 def polling_main_tr():
     while True:
-        try:
+        if not q_from.empty():
             value = q_from.get(block=False)
-            print("" * 80)
+            print("value?" * 10)
             print(value)
             if value:
                 logger.debug("Received from queue: {}.".format(value))
                 from_bot_message = from_ai_message(value)
                 receive_from_bot(from_bot_message)
-        except:
-
         gevent.sleep(0)
 
 receiver_tr = Thread(target=polling_main_tr, name="polling_main_thread")
