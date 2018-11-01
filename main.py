@@ -156,7 +156,6 @@ def poll():
             #msg_text = msg.decode()
             print("1111")
             #print(msg_text)
-    gevent.sleep(0)
 
 
 def push(msg):
