@@ -1,4 +1,5 @@
 import multiprocessing
+import uuid
 from multiprocessing import Process
 
 import gevent
@@ -20,6 +21,7 @@ from chat_manager.chat_manager import ChatManager
 from mq.from_ai_message import from_ai_message
 from mq.kafka.kafka_consumer import KafkaConsumer
 from mq.kafka.kafka_publisher import KafkaPublisher
+from mq.to_ai_message import to_ai_message
 from response_model.response_model import ResponseModel, FINAL_ANSWER
 
 async_mode = "gevent"
@@ -61,6 +63,10 @@ def button(bot, update):
     process_text(query.message.chat_id, query.data, bot)
     bot.send_message(chat_id=query.mesage.chat_id, text=query.data)
 
+
+
+def make_to_message(text, chatid):
+    return to_ai_message(messageId=uuid.uuid1(), userId=chatid, chatId=chatid, message=text)
 
 def process_text(chat_id, text, bot):
     room = manager.chat_room(chat_id)
