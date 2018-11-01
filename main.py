@@ -41,6 +41,8 @@ logger.setLevel(logging.DEBUG)
 logger.addHandler(handlerFile)
 logger.addHandler(handlerConsole)
 
+logger.exception("!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+
 rm = ResponseModel()
 bot = Bot(TOKEN)
 update_queue = Queue()
@@ -73,7 +75,7 @@ def button(bot, update):
 
 
 def make_to_message(text, chatid):
-    return to_ai_message(messageId=uuid.uuid1(), userId=chatid, chatId=chatid, message=text)
+    return to_ai_message(messageId=str(uuid.uuid1()), userId=chatid, chatId=chatid, message=text)
 
 def process_text(chat_id, text, bot):
     room = manager.chat_room(chat_id)
