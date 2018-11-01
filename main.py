@@ -12,7 +12,9 @@ from telegram import Bot, Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import MessageHandler, Filters, Dispatcher, CallbackQueryHandler
 from telegram.ext import CommandHandler
 
+import kafka_config
 from chat_manager.chat_manager import ChatManager
+from mq.kafka.kafka_consumer import KafkaConsumer
 from response_model.response_model import ResponseModel, FINAL_ANSWER
 
 async_mode = "gevent"
@@ -92,12 +94,54 @@ thread_bot.start()
 
 manager = ChatManager()
 
-def loop():
-    while True:
+logger = logging.getLogger()
+consumer = KafkaConsumer(kafka_config.kafkaConfig, logger)
+# publisher = KafkaPublisher(kafka_config, logger)
+#
+#
+# def _filter_user_messages(messages):
+#     user_messages = []
+#
+#     for message in messages:
+#         if message["message_name"] == "ANSWER_TO_USER":
+#             user_messages.append(message)
+#     return user_messages
+#
+#
+# def receive_from_bot(from_bot_message):
+#     chatid = from_bot_message["uuid"]["chatId"]
+#     room = manager.chat_room(chatid)
+#
+#     messages = from_bot_message["messages"]
+#     user_messages = _filter_user_messages(messages)
+#
+#     user_messages_str = json.dumps(user_messages)
+#     all_messages_str = json.dumps(from_bot_message)
+#
+#     manager.store_message_from_bot(all_messages_str, chatid)
+#     bot.send_message(chat_id=chatid, text=user_messages_str)
+#     socketio.emit('my_response', {'data': f'{from_bot_message}', 'count': 0},
+#                   namespace="/test",
+#                   room=str(room))
+#
+#     #if ans == FINAL_ANSWER:
+#     #    manager.close_bot_session(chatid)
+
+
+def poll():
+    while 1:
+        msg = consumer.poll()
+        if msg:
+            value = msg.value()
+            if value:
+                # sys.stderr.write("Received from AI: {}.".format(value))
+                # from_bot_message = from_ai_message(value)
+                # receive_from_bot(from_bot_message)
+                pass
         gevent.sleep(0)
 
-thread_fake = Thread(target=loop, name='dispatcher222')
-thread_fake.start()
+thread_kafka = Thread(target=poll, name='dispatcher222')
+thread_kafka.start()
 
 
 @app.route('/')
