@@ -157,7 +157,6 @@ def poll():
             print("1111")
             #print(msg_text)
 
-poll()
 def push(msg):
     logger.info("Received push queue. sending to AI:")
     print("test sending")
