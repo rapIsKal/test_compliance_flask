@@ -130,6 +130,8 @@ def _filter_user_messages(messages):
 
 
 def receive_from_bot(from_bot_message):
+    print(from_bot_message)
+    print(type(from_bot_message))
     chatid = from_bot_message["uuid"]["chatId"]
     room = manager.chat_room(chatid)
 
