@@ -179,7 +179,10 @@ push_pr_kafka.start()
 def polling_main_tr():
     while True:
         try:
+            print("*" * 80)
             value = q_from.get(block=False)
+            print("*" * 80)
+            print(value)
             if value:
                 logger.debug("Received from queue: {}.".format(value))
                 from_bot_message = from_ai_message(value)
