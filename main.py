@@ -164,7 +164,7 @@ def push():
         logger.info("Received push queue. sending to AI:")
         print("test sending")
         publisher.send("toAI", b"testsend")
-        gevent.sleep(4)
+        gevent.sleep(0)
 
 push_tr = Thread(target=push, name="push_k")
 push_tr.start()
