@@ -42,11 +42,6 @@ logger.setLevel(logging.DEBUG)
 logger.addHandler(handlerFile)
 logger.addHandler(handlerConsole)
 
-class Participant(Enum):
-    BOT = 0
-    USER = 1
-    OPERATOR = 2
-
 rm = ResponseModel()
 bot = Bot(TOKEN)
 update_queue = Queue()
@@ -247,7 +242,7 @@ def send_room_message(message):
          {'data': patch_msg_data(message['data'])},
          room=message['room'])
     chatid = manager.chat_id(room)
-    manager.store_message(patch_msg_data(message['data']), chatid, Participant.OPERATOR)
+    manager.store_message(patch_msg_data(message['data']), chatid, 2)
     bot.send_message(chat_id=chatid, text=patch_msg_data(message['data']))
     manager.close_bot_session(chatid)
 
