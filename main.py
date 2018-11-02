@@ -81,10 +81,7 @@ def make_to_message(text, chatid):
 
 def process_text(chat_id, text, bot):
     room = manager.chat_room(chat_id)
-    socketio.emit('broad_response', {'chat_id': chat_id, 'room_id': room},
-                  namespace="/test",
-                  broadcast=True)
-    socketio.emit('my_response', {'data': f'{text}', 'count': 0},
+    socketio.emit('my_response', {'data': f'Юзер пишет: {text}'},
                   namespace="/test",
                   room=str(room))
     if manager.is_bot_session(chat_id):
@@ -96,7 +93,10 @@ def process_text(chat_id, text, bot):
 
 def userinput(bot, update):
     chatid = update.message.chat_id
-    manager.start_user_chat(chatid)
+    if manager.start_user_chat(chatid):
+        socketio.emit('broad_response', {'chat_id': chatid, 'room_id': manager.chat_room(chatid)},
+                      namespace="/test",
+                      broadcast=True)
     process_text(chatid, update.message.text, bot)
 
 start_handler = CommandHandler('start', start)
@@ -239,7 +239,7 @@ def close(message):
 def send_room_message(message):
     room = int(message['room'])
     emit('my_response',
-         {'data': patch_msg_data(message['data'])},
+         {'data': f"Оператор пишет: {patch_msg_data(message['data'])}"},
          room=message['room'])
     chatid = manager.chat_id(room)
     manager.store_message(patch_msg_data(message['data']), chatid, 2)

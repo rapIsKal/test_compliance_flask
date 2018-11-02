@@ -36,6 +36,8 @@ class ChatManager:
             # do we need to drop history storage then?
             self.user_chats.update({chat_id: {"store_history": True, "chat_room": self.room_identifiers, "bot": True, "history":[], "operators":[]}})
             self.rooms.update({self.room_identifiers: {"chat_id": chat_id, "operators": []}})
+            return True
+        return False
 
     def is_user_chat_closed(self, chat_id):
         return not self.user_chats[chat_id]["available"]
