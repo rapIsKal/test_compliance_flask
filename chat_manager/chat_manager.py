@@ -1,3 +1,5 @@
+from main import Participant
+
 
 class ChatManager:
     def __init__(self):
@@ -15,17 +17,19 @@ class ChatManager:
         return self.user_chats[chat_id]["operators"]
 
     def store_message_from_bot(self, msg, chat_id):
-        return self.store_message(msg, chat_id, True)
+        return self.store_message(msg, chat_id, Participant.BOT)
 
     def store_message_to_bot(self, msg, chat_id):
-        return self.store_message(msg, chat_id, False)
+        return self.store_message(msg, chat_id, Participant.USER)
 
-    def store_message(self, msg, chat_id, bot= False):
+    def store_message(self, msg, chat_id, participant):
         if self.user_chats[chat_id]["store_history"]:
-            if bot:
+            if participant == Participant.BOT:
                 prefix = "Ответ бота: "
-            else:
+            elif participant == Participant.USER
                 prefix = "Юзер пишет: "
+            else:
+                prefix = "Оператор пишет: "
             self.user_chats[chat_id]["history"].append(prefix + msg)
 
     def start_user_chat(self, chat_id):

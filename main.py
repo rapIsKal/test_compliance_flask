@@ -1,12 +1,9 @@
 import time
-
-import multiprocessing
+from enum import Enum
 import uuid
-from multiprocessing import Process
 from kafka import KafkaConsumer
 from kafka import KafkaProducer
 
-import gevent
 import json
 import logging
 from queue import Queue
@@ -45,7 +42,10 @@ logger.setLevel(logging.DEBUG)
 logger.addHandler(handlerFile)
 logger.addHandler(handlerConsole)
 
-print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+class Participant(Enum):
+    BOT = 0
+    USER = 1
+    OPERATOR = 2
 
 rm = ResponseModel()
 bot = Bot(TOKEN)
@@ -86,7 +86,7 @@ def make_to_message(text, chatid):
 
 def process_text(chat_id, text, bot):
     room = manager.chat_room(chat_id)
-    socketio.emit('broad_response', {'data': f'Chatroom:{chat_id} available: {room}', 'count': 0},
+    socketio.emit('broad_response', {'chat_id': chat_id, 'room_id': room},
                   namespace="/test",
                   broadcast=True)
     socketio.emit('my_response', {'data': f'{text}', 'count': 0},
@@ -165,8 +165,6 @@ def receive_from_bot(from_bot_message):
                   room=str(room))
 
 
-
-
 def push(msg):
     logger.info("Received push queue. sending to AI:")
     print("test sending")
@@ -181,7 +179,6 @@ def index():
 def kakla_poll():
     receive_from_bot(json.loads(request.data))
     return "OK"
-
 
 
 @app.route('/admin')
@@ -250,6 +247,7 @@ def send_room_message(message):
          {'data': patch_msg_data(message['data'])},
          room=message['room'])
     chatid = manager.chat_id(room)
+    manager.store_message(patch_msg_data(message['data']), chatid, Participant.OPERATOR)
     bot.send_message(chat_id=chatid, text=patch_msg_data(message['data']))
     manager.close_bot_session(chatid)
 
@@ -272,12 +270,5 @@ def test_disconnect():
     print('Client disconnected', request.sid)
 
 
-
 if __name__=="__main__":
-    print("!!!!!!")
-    for msg in consumer:
-        print("*"*40)
-        if msg:
-             #msg_text = msg.decode()
-             print("1111")
-             #print(msg_text)
+    print(Participant.OPERATOR)
