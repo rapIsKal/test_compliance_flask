@@ -26,7 +26,7 @@ class ChatManager:
         if self.user_chats[chat_id]["store_history"]:
             if participant == Participant.BOT:
                 prefix = "Ответ бота: "
-            elif participant == Participant.USER
+            elif participant == Participant.USER:
                 prefix = "Юзер пишет: "
             else:
                 prefix = "Оператор пишет: "
