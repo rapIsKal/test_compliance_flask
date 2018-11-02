@@ -58,17 +58,20 @@ def patch_msg_data(data):
 
 
 def start(bot, update):
-    bot.send_message(chat_id=update.message.chat_id, text=f"Бобро поржаловать")
+    bot.send_message(chat_id=update.message.chat_id, text=f"Здравствуйте! Я виртуальный помощник Сбербанка "
+                                                          f"Скажите пожалуйста чем вы обеспокоены")
+    """
     keyboard = [[InlineKeyboardButton("Жалоба", callback_data='сбер плохо себя вел'),
                  InlineKeyboardButton("Другое", callback_data='другое')]]
 
     reply_markup = InlineKeyboardMarkup(keyboard)
-
+    """
     manager.start_user_chat(update.message.chat_id)
     socketio.emit('my_response',
                   {'data': 'Server generated VERY SPECIAL event', 'count': 0},
                   namespace='/test')
-    update.message.reply_text('Please choose:', reply_markup=reply_markup)
+    #update.message.reply_text('Please choose:', reply_markup=reply_markup)
+
 
 def button(bot, update):
     query = update.callback_query
@@ -83,7 +86,6 @@ def make_to_message(text, chatid):
 
 def process_text(chat_id, text, bot):
     room = manager.chat_room(chat_id)
-    bot.send_message(chat_id=chat_id, text='чет пришло')
     socketio.emit('broad_response', {'data': f'Chatroom:{chat_id} available: {room}', 'count': 0},
                   namespace="/test",
                   broadcast=True)
@@ -95,8 +97,6 @@ def process_text(chat_id, text, bot):
         message_to_bot_str = json.dumps(make_to_message(text, chat_id))
         logger.info("Try to send to publisher queue: {}.".format(message_to_bot_str))
         push(message_to_bot_str)
-        bot.send_message(chat_id=chat_id, text='записали в кафку')
-
 
 
 def userinput(bot, update):
@@ -106,7 +106,7 @@ def userinput(bot, update):
 
 start_handler = CommandHandler('start', start)
 user_handler = MessageHandler(None, userinput)
-dispatcher.add_handler(CallbackQueryHandler(button))
+#dispatcher.add_handler(CallbackQueryHandler(button))
 dispatcher.add_handler(start_handler)
 dispatcher.add_handler(user_handler)
 thread_bot = Thread(target=dispatcher.start, name='dispatcher')
@@ -146,8 +146,6 @@ def receive_from_bot(from_bot_message):
                   namespace="/test",
                   room=str(room))
 
-    #if ans == FINAL_ANSWER:
-    #    manager.close_bot_session(chatid)
 
 
 
@@ -159,7 +157,6 @@ def receive_from_bot(from_bot_message):
     user_messages = _filter_user_messages(messages)
 
     user_messages_str = user_messages
-    #all_messages_str = json.dumps(from_bot_message)
 
     manager.store_message_from_bot(user_messages_str, chatid)
     bot.send_message(chat_id=chatid, text=user_messages_str)
@@ -167,8 +164,6 @@ def receive_from_bot(from_bot_message):
                   namespace="/test",
                   room=str(room))
 
-    #if ans == FINAL_ANSWER:
-    #    manager.close_bot_session(chatid)
 
 
 
@@ -177,44 +172,13 @@ def push(msg):
     print("test sending")
     bmsg = msg.encode()
     publisher.send("toAI", bmsg)
-    #gevent.sleep(0)
-
-# push_tr = Thread(target=push, name="push_k")
-# push_tr.start()
-
-
-
-#poll_tr = Thread(target=poll, name="poll_k")
-#poll_tr.start()
-
-
-# push_pr_kafka = Process(target=push, args=(q_to,), name='pushning kafka')
-# push_pr_kafka.start()
-
-# def polling_main_tr():
-#     while True:
-#         if not q_from.empty():
-#             value = q_from.get(block=False)
-#             if value:
-#                 logger.debug("Received from queue: {}.".format(value))
-#                 from_bot_message = from_ai_message(value)
-#                 receive_from_bot(from_bot_message)
-#
-# receiver_tr = Thread(target=polling_main_tr, name="polling_main_thread")
-# receiver_tr.start()
-
-
-
 
 @app.route('/')
 def index():
-    #return " Hello world"
     return render_template('index.html', async_mode=socketio.async_mode)
 
 @app.route("/kafka", methods=['POST'])
 def kakla_poll():
-    print("*********************")
-    print("aloha")
     receive_from_bot(json.loads(request.data))
     return "OK"
 
