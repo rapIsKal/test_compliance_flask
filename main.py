@@ -125,7 +125,7 @@ def _filter_user_messages(messages):
 
     for message in messages:
         if message["message_name"] == "ANSWER_TO_USER":
-            user_message_string += json.loads(message["payload"]["answer"])
+            user_message_string += message["payload"]["answer"]
     return user_message_string
 
 
@@ -138,6 +138,7 @@ def receive_from_bot(from_bot_message):
     messages = from_bot_message["messages"]
     user_message_string = _filter_user_messages(messages)
     all_messages_str = json.dumps(from_bot_message)
+    print("BOT ANSWERED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!: {}".format(user_message_string))
 
     manager.store_message_from_bot(user_message_string, chatid)
     bot.send_message(chat_id=chatid, text=user_message_string)
@@ -157,12 +158,12 @@ def receive_from_bot(from_bot_message):
     messages = from_bot_message["messages"]
     user_messages = _filter_user_messages(messages)
 
-    user_messages_str = json.dumps(user_messages)
-    all_messages_str = json.dumps(from_bot_message)
+    user_messages_str = user_messages
+    #all_messages_str = json.dumps(from_bot_message)
 
-    manager.store_message_from_bot(all_messages_str, chatid)
+    manager.store_message_from_bot(user_messages_str, chatid)
     bot.send_message(chat_id=chatid, text=user_messages_str)
-    socketio.emit('my_response', {'data': f'{from_bot_message}', 'count': 0},
+    socketio.emit('my_response', {'data': f'{user_messages_str}', 'count': 0},
                   namespace="/test",
                   room=str(room))
 
